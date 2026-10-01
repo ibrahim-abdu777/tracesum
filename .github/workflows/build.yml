@@ -1,0 +1,17 @@
+name: build
+on:
+  push:
+    branches: [main]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          docker run --rm -v "$PWD":/work alpine:3.20 sh -c \
+            "apk add -q --no-cache gcc musl-dev && gcc -static -O2 -s -o /work/tools/audit-index /work/tools/audit-index.c"
+      - run: ./tools/audit-index --check
+      - uses: actions/upload-artifact@v4
+        with:
+          name: audit-index-linux-x64
+          path: tools/audit-index
